@@ -23,7 +23,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <label for="team-members" class="block text-gray-700 text-sm font-bold mb-2">團隊成員數量:</label>
-                <input type="number" id="team-members" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="10" min="1">
+                <input type="number" id="team-members" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="10" min="10">
             </div>
             <div>
                 <label for="average-salary" class="block text-gray-700 text-sm font-bold mb-2">平均年薪 (台幣):</label>
@@ -36,8 +36,8 @@
             <div>
                 <label for="planmeet-pricing" class="block text-gray-700 text-sm font-bold mb-2">PlanMeet 產品每月定價 (台幣/人):</label>
                 <select id="planmeet-pricing" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="99"><b>99 (早期用戶限定優惠方案！)</b></option>
-                    <option value="119" selected>119</option>
+                    <option value="83.25"><b>83.25 (Early Access 方案)</b></option>
+                    <option value="119">119</option>
                     <option value="149">149</option>
                 </select>
             </div>
@@ -86,18 +86,21 @@
         function calculateROI() {
             const teamMembers = parseInt(teamMembersInput.value);
             const averageSalary = parseInt(averageSalaryInput.value);
-            const planmeetCostPerPerson = parseInt(planmeetPricingSelect.value); // Get selected price
+            const planmeetCostPerPerson = parseFloat(planmeetPricingSelect.value); // Get selected price
             const weeksPerMonth = 4.33; // 平均每月週數
             const hoursSavedPerPersonPerWeek = parseInt(meetingHoursInput.value);
             const daysPerMonth = 30;
 
-            if (isNaN(teamMembers) || isNaN(averageSalary) || isNaN(hoursSavedPerPersonPerWeek)) {
+             if (isNaN(teamMembers) || isNaN(averageSalary) || isNaN(hoursSavedPerPersonPerWeek) || teamMembers < 10) {
                 hoursSavedDisplay.textContent = "0 小時";
                 valueSavedDisplay.textContent = "NT$0";
                 planmeetCostDisplay.textContent = "NT$0";
                 totalRoiDisplay.textContent = "NT$0";
                 annualSavingsDisplay.textContent = "NT$0";
-                descriptionDisplay.textContent = "";
+                descriptionDisplay.textContent = "團隊成員數量不得小於 10 人。";
+                if (teamMembers < 10) {
+                    teamMembersInput.value = 10;
+                }
                 return;
             }
 
@@ -115,7 +118,9 @@
             annualSavingsDisplay.textContent = "NT$" + annualSavings.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
             descriptionDisplay.textContent = `
-團隊成員共 ${teamMembers} 人，每人每週平均會議時間為 ${hoursSavedPerPersonPerWeek} 小時，計算 PlanMeet 能為您節省的時間與金錢。`;
+團隊成員共 ${teamMembers} 人，
+每人每週平均會議時間為 ${hoursSavedPerPersonPerWeek} 小時，
+計算 PlanMeet 能為您節省的時間與金錢。`;
 
         }
 
