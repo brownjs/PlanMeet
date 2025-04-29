@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanMeet ROI 計算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6 rounded-lg">
+    <div class="container max-w-2xl mx-auto bg-white shadow-md p-8 rounded-lg">
+        <h1 class="text-2xl font-semibold text-black mb-6 text-center flex items-center justify-center">
+            <img src="https://edu.filexl.com/uploads/Logowords.png" alt="PlanMeet Logo" class="h-6 mr-2">
+            能為你帶來多少價值
+        </h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="team-members" class="block text-gray-700 text-sm font-bold mb-2">團隊成員數量:</label>
+                <input type="number" id="team-members" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="10" min="1">
+            </div>
+            <div>
+                <label for="average-salary" class="block text-gray-700 text-sm font-bold mb-2">平均年薪 (台幣):</label>
+                <input type="number" id="average-salary" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="900000" min="0">
+            </div>
+            <div>
+                <label for="meeting-hours" class="block text-gray-700 text-sm font-bold mb-2">每人每週約會議時間 (小時):</label>
+                <input type="number" id="meeting-hours" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="3" min="0">
+            </div>
+            <div>
+                <label for="planmeet-pricing" class="block text-gray-700 text-sm font-bold mb-2">PlanMeet 產品每月定價 (台幣/人):</label>
+                <select id="planmeet-pricing" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="99"><b>99 (早期用戶限定優惠方案！)</b></option>
+                    <option value="119" selected>119</option>
+                    <option value="149">149</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">計算結果</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">每月節省時間:</label>
+                    <p id="hours-saved" class="text-gray-900 font-medium">0 小時</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">每月節省金額:</label>
+                    <p id="value-saved" class="text-gray-900 font-medium">NT$0</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">PlanMeet 每月花費:</label>
+                    <p id="planmeet-cost" class="text-gray-900 font-medium">NT$0</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">總計每月 ROI:</label>
+                    <p id="total-roi" class="text-green-600 font-bold text-lg">NT$0</p>
+                </div>
+                 <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">年度總節省金額:</label>
+                    <p id="annual-savings" class="text-red-600 font-bold text-lg">NT$0</p>
+                </div>
+            </div>
+        </div>
+        <p id="description" class="text-gray-500 text-sm mt-4"></p>
+    </div>
+
+    <script>
+        const teamMembersInput = document.getElementById('team-members');
+        const averageSalaryInput = document.getElementById('average-salary');
+        const planmeetPricingSelect = document.getElementById('planmeet-pricing');
+        const hoursSavedDisplay = document.getElementById('hours-saved');
+        const valueSavedDisplay = document.getElementById('value-saved');
+        const planmeetCostDisplay = document.getElementById('planmeet-cost');
+        const totalRoiDisplay = document.getElementById('total-roi');
+        const annualSavingsDisplay = document.getElementById('annual-savings');
+        const meetingHoursInput = document.getElementById('meeting-hours');
+        const descriptionDisplay = document.getElementById('description');
+
+        function calculateROI() {
+            const teamMembers = parseInt(teamMembersInput.value);
+            const averageSalary = parseInt(averageSalaryInput.value);
+            const planmeetCostPerPerson = parseInt(planmeetPricingSelect.value); // Get selected price
+            const weeksPerMonth = 4.33; // 平均每月週數
+            const hoursSavedPerPersonPerWeek = parseInt(meetingHoursInput.value);
+            const daysPerMonth = 30;
+
+            if (isNaN(teamMembers) || isNaN(averageSalary) || isNaN(hoursSavedPerPersonPerWeek)) {
+                hoursSavedDisplay.textContent = "0 小時";
+                valueSavedDisplay.textContent = "NT$0";
+                planmeetCostDisplay.textContent = "NT$0";
+                totalRoiDisplay.textContent = "NT$0";
+                annualSavingsDisplay.textContent = "NT$0";
+                descriptionDisplay.textContent = "";
+                return;
+            }
+
+            const hoursSavedPerMonth = Math.round(teamMembers * hoursSavedPerPersonPerWeek * weeksPerMonth);
+            const hourlyRate = averageSalary / (52 * 40); // Assuming 40-hour work week
+            const valueSavedPerMonth = hoursSavedPerMonth * hourlyRate;
+            const planmeetCost = teamMembers * planmeetCostPerPerson;
+            const totalRoi = valueSavedPerMonth - planmeetCost;
+            const annualSavings = totalRoi * 12;
+
+            hoursSavedDisplay.textContent = hoursSavedPerMonth.toLocaleString() + " 小時";
+            valueSavedDisplay.textContent = "NT$" + valueSavedPerMonth.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            planmeetCostDisplay.textContent = "NT$" + planmeetCost.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            totalRoiDisplay.textContent = "NT$" + totalRoi.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            annualSavingsDisplay.textContent = "NT$" + annualSavings.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+            descriptionDisplay.textContent = `
+團隊成員共 ${teamMembers} 人，每人每週平均會議時間為 ${hoursSavedPerPersonPerWeek} 小時，計算 PlanMeet 能為您節省的時間與金錢。`;
+
+        }
+
+        teamMembersInput.addEventListener('input', calculateROI);
+        averageSalaryInput.addEventListener('input', calculateROI);
+        planmeetPricingSelect.addEventListener('change', calculateROI); // Recalculate on price change
+        meetingHoursInput.addEventListener('input', calculateROI);
+
+        calculateROI(); // Initial calculation
+    </script>
+</body>
+</html>
